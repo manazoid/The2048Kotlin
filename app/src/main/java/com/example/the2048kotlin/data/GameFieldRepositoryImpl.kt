@@ -4,18 +4,19 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.example.the2048kotlin.domain.GameFieldRepository
 import com.example.the2048kotlin.domain.GameItem
+import kotlin.random.Random
 
 object GameFieldRepositoryImpl : GameFieldRepository {
 
     private val gameFieldLD = MutableLiveData<List<GameItem>>()
 
-    private val gameField = mutableListOf<GameItem>()
+    private val gameField = sortedSetOf<GameItem>({ p0, p1 -> p0.id.compareTo(p1.id) })
 
     private var autoIncrementId = 0
 
     init {
-        for( i in 0 until 10) {
-            val item = GameItem("Name $i", i, true)
+        for( i in 0 until 1000) {
+            val item = GameItem("Name $i", i, Random.nextBoolean())
             createGameItem(item)
         }
     }
