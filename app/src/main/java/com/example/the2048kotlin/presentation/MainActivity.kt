@@ -20,7 +20,7 @@ class MainActivity : AppCompatActivity() {
         setupRecyclerView()
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.gameField.observe(this) {
-            gameFieldAdapter.gameField = it
+            gameFieldAdapter.submitList(it)
         }
     }
 
@@ -58,7 +58,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-                val item = gameFieldAdapter.gameField[viewHolder.adapterPosition]
+                val item = gameFieldAdapter.currentList[viewHolder.adapterPosition]
                 viewModel.deleteGameItem(item)
             }
         }
