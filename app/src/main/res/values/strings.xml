@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">The 2048 Kotlin</string>
+    <string name="invalid_name">Invalid name</string>
+    <string name="invalid_count">Invalid count</string>
 </resources>
