@@ -17,10 +17,7 @@ import com.example.the2048kotlin.R
 import com.example.the2048kotlin.domain.GameItem
 import com.google.android.material.textfield.TextInputLayout
 
-class GameItemFragment(
-    private val screenMode: String = UNDEFINED_SCREEN_MODE,
-    private val gameItemId: Int = GameItem.UNDEFINED_ID
-): Fragment() {
+class GameItemFragment : Fragment() {
 
     private lateinit var viewModel: GameItemViewModel
 
@@ -30,17 +27,25 @@ class GameItemFragment(
     private lateinit var etCount: EditText
     private lateinit var buttonSave: Button
 
+    private var screenMode = UNDEFINED_SCREEN_MODE
+    private var gameItemId = GameItem.UNDEFINED_ID
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        parseParams()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        arguments
         return inflater.inflate(R.layout.fragment_game_item, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        parseParams()
         viewModel = ViewModelProvider(this)[GameItemViewModel::class.java]
         initViews(view)
         checkOutMode()
@@ -129,11 +134,20 @@ class GameItemFragment(
     }
 
     private fun parseParams() {
-        if (screenMode != MODE_EDIT && screenMode != MODE_ADD) {
+        val args = requireArguments()
+        if (!args.containsKey(SCREEN_MODE)) {
             throw RuntimeException("param screen mode is absent")
         }
-        if (screenMode == MODE_EDIT && gameItemId == GameItem.UNDEFINED_ID) {
-            throw RuntimeException("param id of item is absent")
+        val mode = args.getString(SCREEN_MODE)
+        if (mode != MODE_EDIT && mode != MODE_ADD) {
+            throw RuntimeException("unknown screen mode $mode")
+        }
+        screenMode = mode
+        if (screenMode == MODE_EDIT) {
+            if (!args.containsKey(GAME_ITEM_ID)) {
+                throw RuntimeException("param id of item is absent")
+            }
+            gameItemId = args.getInt(GAME_ITEM_ID, GameItem.UNDEFINED_ID)
         }
     }
 
@@ -147,31 +161,27 @@ class GameItemFragment(
 
     companion object {
 
-        private const val EXTRA_SCREEN_MODE = "extra_mode"
-        private const val EXTRA_GAME_ITEM_ID = "extra_game_item_id"
+        private const val SCREEN_MODE = "extra_mode"
+        private const val GAME_ITEM_ID = "extra_game_item_id"
         private const val MODE_EDIT = "mode_edit"
         private const val MODE_ADD = "mode_add"
         private const val UNDEFINED_SCREEN_MODE = ""
 
         fun newInstanceAddItem(): GameItemFragment {
-            return GameItemFragment(MODE_ADD)
+            return GameItemFragment().apply {
+                arguments = Bundle().apply {
+                    putString(SCREEN_MODE, MODE_ADD)
+                }
+            }
         }
 
         fun newInstanceEditItem(gameItemId: Int): GameItemFragment {
-            return GameItemFragment(MODE_EDIT, gameItemId)
-        }
-
-        fun newIntentAddItem(context: Context): Intent {
-            val intent = Intent(context, GameItemActivity::class.java)
-            intent.putExtra(EXTRA_SCREEN_MODE, MODE_ADD)
-            return intent
-        }
-
-        fun newIntentEditItem(context: Context, gameItemId: Int): Intent {
-            val intent = Intent(context, GameItemActivity::class.java)
-            intent.putExtra(EXTRA_SCREEN_MODE, MODE_EDIT)
-            intent.putExtra(EXTRA_GAME_ITEM_ID, gameItemId)
-            return intent
+            return GameItemFragment().apply {
+                arguments = Bundle().apply {
+                    putString(SCREEN_MODE, MODE_EDIT)
+                    putInt(GAME_ITEM_ID, gameItemId)
+                }
+            }
         }
     }
 }
