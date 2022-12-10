@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
     private fun launchFragment(fragment: Fragment) {
         supportFragmentManager.popBackStack()
         supportFragmentManager.beginTransaction()
-            .add(R.id.game_item_fragment_container, fragment)
+            .replace(R.id.game_item_fragment_container, fragment)
             .addToBackStack(null)
             .commit()
     }

@@ -3,6 +3,7 @@ package com.example.the2048kotlin.presentation
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import com.example.the2048kotlin.R
 import com.example.the2048kotlin.domain.GameItem
@@ -13,10 +14,13 @@ class GameItemActivity : AppCompatActivity() {
     private var gameItemId = GameItem.UNDEFINED_ID
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("GameItemActivity", "onCreate")
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_item)
         parseIntent()
-        checkOutMode()
+        if (savedInstanceState == null) {
+            checkOutMode()
+        }
     }
 
     private fun checkOutMode() {
@@ -26,7 +30,7 @@ class GameItemActivity : AppCompatActivity() {
             else -> throw RuntimeException("unknown screen mode $screenMode")
         }
         supportFragmentManager.beginTransaction()
-            .add(R.id.game_item_container, fragment)
+            .replace(R.id.game_item_container, fragment)
             .commit()
     }
 
