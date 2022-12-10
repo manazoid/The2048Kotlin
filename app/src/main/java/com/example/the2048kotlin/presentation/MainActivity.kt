@@ -1,8 +1,9 @@
 package com.example.the2048kotlin.presentation
 
 import android.os.Bundle
-import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentContainerView
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.RecyclerView
@@ -13,10 +14,12 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var viewModel: MainViewModel
     private lateinit var gameFieldAdapter: GameFieldAdapter
+    private var gameItemContainer: FragmentContainerView? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+        gameItemContainer = findViewById(R.id.game_item_fragment_container)
         setupRecyclerView()
         viewModel = ViewModelProvider(this)[MainViewModel::class.java]
         viewModel.gameField.observe(this) {
@@ -24,8 +27,13 @@ class MainActivity : AppCompatActivity() {
         }
         val buttonAddItem = findViewById<FloatingActionButton>(R.id.button_add_item)
         buttonAddItem.setOnClickListener {
-            val intent = GameItemActivity.newIntentAddItem(this)
-            startActivity(intent)
+            if (isOnePaneMode()) {
+                val intent = GameItemActivity.newIntentAddItem(this)
+                startActivity(intent)
+            } else {
+                val fragment = GameItemFragment.newInstanceAddItem()
+                launchFragment(fragment)
+            }
         }
     }
 
@@ -73,9 +81,13 @@ class MainActivity : AppCompatActivity() {
 
     private fun setupSingleClickListener() {
         gameFieldAdapter.onGameItemSingleClickListener = {
-            Log.d("gameFieldAdapter", "onGameItemSingleClickListener ${it.toString()}")
-            val intent = GameItemActivity.newIntentEditItem(this, it.id)
-            startActivity(intent)
+            if (isOnePaneMode()) {
+                val intent = GameItemActivity.newIntentEditItem(this, it.id)
+                startActivity(intent)
+            } else {
+                val fragment = GameItemFragment.newInstanceEditItem(it.id)
+                launchFragment(fragment)
+            }
         }
     }
 
@@ -83,5 +95,17 @@ class MainActivity : AppCompatActivity() {
         gameFieldAdapter.onGameItemLongClickListener = {
             viewModel.changeEnableState(it)
         }
+    }
+
+    private fun isOnePaneMode(): Boolean {
+        return gameItemContainer == null
+    }
+
+    private fun launchFragment(fragment: Fragment) {
+        supportFragmentManager.popBackStack()
+        supportFragmentManager.beginTransaction()
+            .add(R.id.game_item_fragment_container, fragment)
+            .addToBackStack(null)
+            .commit()
     }
 }
