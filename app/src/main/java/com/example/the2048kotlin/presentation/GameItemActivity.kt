@@ -17,13 +17,13 @@ import com.google.android.material.textfield.TextInputLayout
 
 class GameItemActivity : AppCompatActivity() {
 
-    private lateinit var viewModel: GameItemViewModel
-
-    private lateinit var tilName: TextInputLayout
-    private lateinit var tilCount: TextInputLayout
-    private lateinit var etName: EditText
-    private lateinit var etCount: EditText
-    private lateinit var buttonSave: Button
+//    private lateinit var viewModel: GameItemViewModel
+//
+//    private lateinit var tilName: TextInputLayout
+//    private lateinit var tilCount: TextInputLayout
+//    private lateinit var etName: EditText
+//    private lateinit var etCount: EditText
+//    private lateinit var buttonSave: Button
 
     private var screenMode = UNDEFINED_SCREEN_MODE
     private var gameItemId = GameItem.UNDEFINED_ID
@@ -32,93 +32,97 @@ class GameItemActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_edit_item)
         parseIntent()
-        viewModel = ViewModelProvider(this)[GameItemViewModel::class.java]
-        initViews()
+//        viewModel = ViewModelProvider(this)[GameItemViewModel::class.java]
+//        initViews()
         checkOutMode()
-        errorLiveDataObserve()
-        observeShouldCloseScreen()
-        resetErrorTextChangedListener()
+//        errorLiveDataObserve()
+//        observeShouldCloseScreen()
+//        resetErrorTextChangedListener()
     }
 
-    private fun resetErrorTextChangedListener() {
-        etName.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                viewModel.resetErrorInputName()
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-            }
-        })
-        etCount.addTextChangedListener(object : TextWatcher {
-            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-            }
-
-            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                viewModel.resetErrorInputCount()
-            }
-
-            override fun afterTextChanged(p0: Editable?) {
-            }
-        })
-    }
-
-    private fun observeShouldCloseScreen() {
-        viewModel.shouldCloseScreen.observe(this) {
-            finish()
-        }
-    }
-
-    private fun errorLiveDataObserve() {
-        viewModel.errorInputName.observe(this) {
-            val message = if (it) {
-                getString(R.string.invalid_name)
-            } else {
-                null
-            }
-            tilName.error = message
-        }
-        viewModel.errorInputCount.observe(this) {
-            val message = if (it) {
-                getString(R.string.invalid_count)
-            } else {
-                null
-            }
-            tilCount.error = message
-        }
-    }
+//    private fun resetErrorTextChangedListener() {
+//        etName.addTextChangedListener(object : TextWatcher {
+//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//            }
+//
+//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//                viewModel.resetErrorInputName()
+//            }
+//
+//            override fun afterTextChanged(p0: Editable?) {
+//            }
+//        })
+//        etCount.addTextChangedListener(object : TextWatcher {
+//            override fun beforeTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//            }
+//
+//            override fun onTextChanged(p0: CharSequence?, p1: Int, p2: Int, p3: Int) {
+//                viewModel.resetErrorInputCount()
+//            }
+//
+//            override fun afterTextChanged(p0: Editable?) {
+//            }
+//        })
+//    }
+//
+//    private fun observeShouldCloseScreen() {
+//        viewModel.shouldCloseScreen.observe(this) {
+//            finish()
+//        }
+//    }
+//
+//    private fun errorLiveDataObserve() {
+//        viewModel.errorInputName.observe(this) {
+//            val message = if (it) {
+//                getString(R.string.invalid_name)
+//            } else {
+//                null
+//            }
+//            tilName.error = message
+//        }
+//        viewModel.errorInputCount.observe(this) {
+//            val message = if (it) {
+//                getString(R.string.invalid_count)
+//            } else {
+//                null
+//            }
+//            tilCount.error = message
+//        }
+//    }
 
     private fun checkOutMode() {
-        when (screenMode) {
-            MODE_EDIT -> launchEditMode()
-            MODE_ADD -> launchAddMode()
+        val fragment = when (screenMode) {
+            MODE_EDIT -> GameItemFragment.newInstanceEditItem(gameItemId)
+            MODE_ADD -> GameItemFragment.newInstanceAddItem()
+            else -> throw RuntimeException("unknown screen mode $screenMode")
         }
+        supportFragmentManager.beginTransaction()
+            .add(R.id.game_item_container, fragment)
+            .commit()
     }
 
-    private fun launchEditMode() {
-        Log.d("launchEditMode", "getGameItem $gameItemId")
-        viewModel.getGameItem(gameItemId)
-        viewModel.gameItem.observe(this) {
-            etName.setText(it.name)
-            etCount.setText(it.count.toString())
-        }
-        buttonSave.setOnClickListener {
-            val name = etName.text
-            val count = etCount.text
-            viewModel.editGameItem(name?.toString(), count?.toString())
-        }
-    }
-
-    private fun launchAddMode() {
-        buttonSave.setOnClickListener {
-            val name = etName.text
-            val count = etCount.text
-            viewModel.addGameItem(name.toString(), count.toString())
-        }
-    }
-
+//    private fun launchEditMode() {
+//        Log.d("launchEditMode", "getGameItem $gameItemId")
+//        viewModel.getGameItem(gameItemId)
+//        viewModel.gameItem.observe(this) {
+//            etName.setText(it.name)
+//            etCount.setText(it.count.toString())
+//        }
+//        buttonSave.setOnClickListener {
+//            val name = etName.text
+//            val count = etCount.text
+//            viewModel.editGameItem(name?.toString(), count?.toString())
+//        }
+//    }
+//
+//    private fun launchAddMode() {
+//        buttonSave.setOnClickListener {
+//            val name = etName.text
+//            val count = etCount.text
+//            viewModel.addGameItem(name.toString(), count.toString())
+//        }
+//    }
+//
     private fun parseIntent() {
         if (!intent.hasExtra(EXTRA_SCREEN_MODE)) {
             throw RuntimeException("param screen mode is absent")
@@ -136,13 +140,13 @@ class GameItemActivity : AppCompatActivity() {
         }
     }
 
-    private fun initViews() {
-        tilName = findViewById(R.id.til_name)
-        tilCount = findViewById(R.id.til_count)
-        etName = findViewById(R.id.et_name)
-        etCount = findViewById(R.id.et_count)
-        buttonSave = findViewById(R.id.submit_button)
-    }
+//    private fun initViews() {
+//        tilName = findViewById(R.id.til_name)
+//        tilCount = findViewById(R.id.til_count)
+//        etName = findViewById(R.id.et_name)
+//        etCount = findViewById(R.id.et_count)
+//        buttonSave = findViewById(R.id.submit_button)
+//    }
 
     companion object {
 
